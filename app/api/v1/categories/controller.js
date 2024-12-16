@@ -54,7 +54,7 @@ const destroy = async (req, res, next) => {
     const { id } = req.params;
     const result = await categoriesService.destroy(id);
 
-    res.status(204).json({
+    res.status(200).json({
       data: result,
     });
   } catch (error) {
