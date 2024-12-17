@@ -1,4 +1,12 @@
 const Categories = require("../api/v1/categories/model");
+const { NotFound } = require("../errors");
+
+const toCategoryResponse = (category) => ({
+  id: category._id,
+  name: category.name,
+  createdAt: category.createdAt,
+  updatedAt: category.updatedAt,
+});
 
 /**
  *
@@ -6,11 +14,26 @@ const Categories = require("../api/v1/categories/model");
  * @param {string} payload.name
  * @returns
  */
-const create = async (payload) => await Categories.create(payload);
+const create = async (payload) => {
+  const category = await Categories.create(payload);
 
-const index = async () => await Categories.find();
 
-const find = async (id) => await Categories.findOne({ _id: id });
+  return toCategoryResponse(category);
+};
+
+const index = async () => {
+  const categories = await Categories.find();
+
+  return categories.map((category) => toCategoryResponse(category));
+};
+
+const find = async (id) => {
+  const category = await Categories.findOne({ _id: id });
+
+  if (!category) throw new NotFound(`Kategori tidak ditemukan`)
+
+  return toCategoryResponse(category);
+};
 
 /**
  *
@@ -19,12 +42,23 @@ const find = async (id) => await Categories.findOne({ _id: id });
  * @param {string} payload.name
  * @returns
  */
-const update = async (id, payload) =>
-  await Categories.findOneAndUpdate({ _id: id }, payload, {
+const update = async (id, payload) => {
+  const category = await Categories.findOneAndUpdate({ _id: id }, payload, {
     new: true, // Return updated document
     runValidators: true, // Enforce schema validation
   });
 
-const destroy = async (id) => await Categories.findOneAndDelete({ _id: id });
+  if (!category) throw new NotFound(`Kategori tidak ditemukan`)
+
+  return toCategoryResponse(category);
+};
+
+const destroy = async (id) => {
+  const category = await Categories.findOneAndDelete({ _id: id });
+
+  if (!category) throw new NotFound(`Kategori tidak ditemukan`)
+
+  return toCategoryResponse(category);
+};
 
 module.exports = { create, index, find, update, destroy };

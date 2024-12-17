@@ -27,6 +27,7 @@ const index = async (req, res, next) => {
 const find = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const result = await categoriesService.find(id);
     res.status(200).json({
       data: result,
     });
